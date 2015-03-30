@@ -8,12 +8,12 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#define NUM_THREADS 50
+#define NUM_CUSTOMERS 50
 
 void enqueue1(int custnr);
 void dequeue1(int *custnr);
 
-void enter_shop(int custnr);
+void enter_shop();
 void sit_on_sofa(int custnr);
 void get_up_from_sofa(int custnr);
 void sit_in_barber_chair(int custnr);
@@ -40,64 +40,67 @@ sem_t sofa;
 sem_t barber_chair, coord;
 sem_t mutex1, mutex2;
 sem_t cust_ready, leave_b_chair, payment, receipt;
-sem_t finished[50] ;
+sem_t finished[NUM_CUSTOMERS] ;
 int count;
+
+int queue1[NUM_CUSTOMERS] = {0};
+int queue1_ptr = 0;
 
 
 void enqueue1(int custnr)
 {
-
+	queue1[queue1_ptr++] = custnr;
 }
 
 void dequeue1(int *custnr)
 {
-	
+	*custnr = queue1[--queue1_ptr];
 }
 
 
-void enter_shop(int custnr)
+void enter_shop()
 {
-	// printf()
+	printf("\r\nnew customer enter shop");
 }
 
 void sit_on_sofa(int custnr)
 {
-	// printf()
+	printf("\r\n%d sit on sofa", custnr);
 }
 
 void get_up_from_sofa(int custnr)
 {
-	// printf()
+	printf("\r\n%d get up from sofa", custnr);
 }
 
 void sit_in_barber_chair(int custnr)
 {
-	// printf()
+	printf("\r\n%d sit in barber chair", custnr);
 }
 
 void leave_barber_chair(int custnr)
 {
-	// printf()
+	printf("\r\n%d leave barber chair", custnr);
 }
 
 void pay(int custnr)
 {
-	// printf()
+	printf("\r\n%d pay", custnr);
 }
 
 void exit_shop(int custnr)
 {
-	// printf()
+	printf("\r\n%d exit shop", custnr);
 }
 
 void cut_hair(int custnr)
 {
-	// printf()
+	printf("\r\n%d cut hair", custnr);
 }
 
 void accept_pay(void)
 {
-	// printf()
+	printf("\r\naccept pay");
 }
 
 
@@ -117,7 +120,7 @@ void *customer (void* arg)
 	if (sem_wait (&max_capacity) == -1)
 		print_exit("wrong wait on customer\n");
 
-	enter_shop(custnr);
+	enter_shop();
 
 	if (sem_wait (&mutex1) == -1)
 		print_exit("wrong wait on customer\n");
@@ -240,7 +243,7 @@ int main (int argc, char *argv[])
 	int thread_count;
 	pthread_t sem_cashier[1];
 	pthread_t sem_barber[3];
-	pthread_t sem_customer[NUM_THREADS];
+	pthread_t sem_customer[NUM_CUSTOMERS];
 	int status;
 
 // sem_t max_capacity = 20;
@@ -307,7 +310,7 @@ int main (int argc, char *argv[])
 		}
 	}
 
-	for (thread_count = 0; thread_count < NUM_THREADS; thread_count++)
+	for (thread_count = 0; thread_count < NUM_CUSTOMERS; thread_count++)
 	{
 		// int *pnum = (int*)malloc(sizeof(int));
 		// *pnum = thread_count;
@@ -330,7 +333,7 @@ int main (int argc, char *argv[])
 	* once for each waiting thread. 
 	*/
 
-	// for (thread_count = 0; thread_count < NUM_THREADS; thread_count++)
+	// for (thread_count = 0; thread_count < NUM_CUSTOMERS; thread_count++)
 	// {
 	// 	printf("Posting from main\n");
 	// 	if (sem_post (&semaphore) == -1)
@@ -343,7 +346,7 @@ int main (int argc, char *argv[])
 	/*
 	* Wait for all threads to complete.
 	*/
-	for (thread_count = 0; thread_count < NUM_THREADS; thread_count++)
+	for (thread_count = 0; thread_count < NUM_CUSTOMERS; thread_count++)
 	{
 		status = pthread_join (sem_customer[thread_count], NULL);
 		if (status != 0)
