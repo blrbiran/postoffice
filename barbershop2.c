@@ -264,7 +264,7 @@ int main (int argc, char *argv[])
 		print_exit("wrong init semaphore\n");
 	if (sem_init (&mutex1, 0, 1) == -1)
 		print_exit("wrong init semaphore\n");
-	if (sem_init (&mutex2, 0, 2) == -1)
+	if (sem_init (&mutex2, 0, 1) == -1)
 		print_exit("wrong init semaphore\n");
 	if (sem_init (&cust_ready, 0, 0) == -1)
 		print_exit("wrong init semaphore\n");
@@ -274,7 +274,7 @@ int main (int argc, char *argv[])
 		print_exit("wrong init semaphore\n");
 	if (sem_init (&receipt, 0, 0) == -1)
 		print_exit("wrong init semaphore\n");
-	for (thread_count = 0; thread_count < 1; thread_count++)
+	for (thread_count = 0; thread_count < NUM_CUSTOMERS; thread_count++)
 		if (sem_init (&finished[thread_count], 0, 0) == -1)
 			print_exit("wrong init semaphore\n");
 
@@ -346,6 +346,26 @@ int main (int argc, char *argv[])
 	/*
 	* Wait for all threads to complete.
 	*/
+	for (thread_count = 0; thread_count < 1; thread_count++)
+	{
+		status = pthread_join (sem_cashier[thread_count], NULL);
+		if (status != 0)
+		{
+			printf("Join thread\n");
+			exit(1);
+		}
+	}
+
+	for (thread_count = 0; thread_count < 3; thread_count++)
+	{
+		status = pthread_join (sem_barber[thread_count], NULL);
+		if (status != 0)
+		{
+			printf("Join thread\n");
+			exit(1);
+		}
+	}
+
 	for (thread_count = 0; thread_count < NUM_CUSTOMERS; thread_count++)
 	{
 		status = pthread_join (sem_customer[thread_count], NULL);
@@ -355,6 +375,7 @@ int main (int argc, char *argv[])
 			exit(1);
 		}
 	}
+	
 	return 0;
 }
 
